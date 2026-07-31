@@ -12,7 +12,7 @@ Ce dépôt contient des **fiches de consigne**. Chaque fiche dit : « quand tel
 
 C'est tout. Le reste n'est que du détail.
 
-## Ce qui se passe pendant que tu dors
+## Ce qui se passe sans intervention
 
 Quatre fois par jour, sans que personne ne touche à rien :
 
@@ -29,8 +29,8 @@ Résultat : **un fichier qui s'allonge tout seul**.
 
 ## Les cinq boutons
 
-Le reste, ce sont des boutons dans l'onglet **Actions**. Tu appuies, tu
-regardes ce qui se passe.
+Le reste, ce sont des boutons dans l'onglet **Actions** : appuyer, puis
+regarder ce qui se passe.
 
 | Bouton | Ce qu'il fabrique |
 |---|---|
@@ -71,16 +71,16 @@ gh workflow run "02 · Contexte"
 
 ---
 
-# Le détail, si tu veux creuser
+# Le détail, pour creuser
 
-Le reste de ce fichier suppose que tu veux comprendre la mécanique. Rien
+Le reste de ce fichier s'adresse à qui veut comprendre la mécanique. Rien
 au-dessus de cette ligne n'en dépend.
 
 ## La chose la plus contre-intuitive
 
-**L'ordinateur qui a écrit ta ligne d'hier n'existe plus.**
+**L'ordinateur qui a écrit la ligne d'hier n'existe plus.**
 
-Il n'y a pas de serveur quelque part avec ton projet dessus. Chaque exécution
+Il n'y a pas de serveur quelque part avec le projet dessus. Chaque exécution
 est une machine neuve, née pour vingt secondes et détruite aussitôt. Rien ne
 survit d'une exécution à l'autre — sauf ce qui a été rangé dans le dépôt.
 
@@ -95,7 +95,7 @@ les six heures.
 - Le jeton donné à un workflow est **en lecture seule**. Sans
   `permissions: contents: write`, le push part en 403. C'est l'erreur la plus
   fréquente.
-- Le commit apparaît sous `github-actions[bot]`, pas sous ton nom.
+- Le commit apparaît sous `github-actions[bot]`, pas sous un nom humain.
 - Un workflow planifié tourne même quand rien n'a changé. Sans le
   `git diff --cached --quiet` de `scripts/pousser.sh`, `git commit` échouerait
   et ferait passer le run en rouge sans raison.
@@ -129,9 +129,9 @@ les six heures.
 - Un push émis avec le jeton par défaut **ne déclenche aucun workflow**.
   Garde-fou anti-boucle infinie, non désactivable.
 - Pour le lever : jeton personnel, clé de déploiement, ou GitHub App. La boucle
-  infinie redevient alors possible, et c'est à toi de la bloquer.
-- Vérification : pousse un commit depuis ton poste, `04b` se déclenche. Lance
-  `04`, il ne se déclenche pas.
+  infinie redevient alors possible, et il faut la bloquer explicitement.
+- Vérification : un commit poussé depuis un poste déclenche `04b` ; un run de
+  `04` ne le déclenche pas.
 
 **05 · Collision — trois jobs qui poussent en même temps.**
 
