@@ -164,7 +164,19 @@ les six heures.
 - Le jeton donné à un workflow est **en lecture seule**. Sans
   `permissions: contents: write`, le push part en 403. C'est l'erreur la plus
   fréquente.
-- Le commit apparaît sous `github-actions[bot]`, pas sous un nom humain.
+- **L'auteur d'un commit se choisit.** GitHub rattache un commit à un compte
+  par la seule adresse de courriel de l'auteur. `scripts/pousser.sh` inscrit
+  celle du compte propriétaire, donc les commits automatiques portent son
+  avatar et comptent dans son graphe de contributions. Y mettre
+  `41898282+github-actions[bot]@users.noreply.github.com` les ferait repasser
+  sous le robot intégré.
+- **Auteur du commit et émetteur du push sont deux identités distinctes.**
+  Changer la première ne change rien aux déclenchements : le push reste émis
+  avec le jeton du workflow, donc il ne réveille aucun autre workflow. Seule
+  la seconde compte pour ça — voir la leçon 04.
+- **L'attribution n'est pas une authentification.** N'importe qui peut inscrire
+  n'importe quelle adresse dans un commit. Seule une signature cryptographique,
+  qui donne le badge *Verified*, prouve quelque chose.
 - Un workflow planifié tourne même quand rien n'a changé. Sans le
   `git diff --cached --quiet` de `scripts/pousser.sh`, `git commit` échouerait
   et ferait passer le run en rouge sans raison.

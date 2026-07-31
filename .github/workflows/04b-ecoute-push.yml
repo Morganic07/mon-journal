@@ -31,7 +31,11 @@ jobs:
             printf '| auteur | %s |\n' "$AUTEUR"
             printf '| message | %s |\n' "$titre"
             echo
-            echo "Si cet auteur est \`github-actions[bot]\`, c'est que le push"
-            echo "a été émis avec d'autres identifiants que le jeton par"
-            echo "défaut — sinon ce run n'existerait pas."
+            echo "L'auteur ci-dessus est celui **inscrit dans le commit**, et"
+            echo "il ne dit rien de qui a poussé. Les commits automatiques de"
+            echo "ce dépôt portent eux aussi le profil du compte."
+            echo
+            echo "Ce qui décide, c'est l'émetteur du push : si ce run existe,"
+            echo "c'est qu'un humain a poussé. Un push émis avec le jeton d'un"
+            echo "workflow ne déclenche rien, quel que soit l'auteur inscrit."
           } >> "$GITHUB_STEP_SUMMARY"

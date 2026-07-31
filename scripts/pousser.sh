@@ -18,11 +18,21 @@ if [ "$branche" = "HEAD" ]; then
   exit 1
 fi
 
-# Identité du robot intégré à Actions. Cette adresse noreply est celle que
-# GitHub associe au compte github-actions[bot] : sans elle, les commits ne
-# sont pas rattachés au bot dans l'interface.
-git config user.name  "github-actions[bot]"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+# GitHub rattache un commit à un compte par la seule adresse de courriel de
+# l'auteur — ni le nom, ni la façon dont le commit est arrivé n'entrent en
+# ligne de compte. Avec l'adresse noreply du compte, les commits automatiques
+# portent l'avatar du profil et comptent dans le graphe de contributions.
+#
+# Pour les faire repasser sous le robot intégré à Actions :
+#   AUTEUR_NOM=github-actions[bot]
+#   AUTEUR_EMAIL=41898282+github-actions[bot]@users.noreply.github.com
+#
+# Attention : ceci ne change que l'AUTEUR inscrit dans le commit. Le push reste
+# émis avec le jeton du workflow, donc il ne réveille toujours aucun autre
+# workflow — voir la leçon 04. Auteur du commit et émetteur du push sont deux
+# identités distinctes, et seule la seconde décide des déclenchements.
+git config user.name  "${AUTEUR_NOM:-Morganic07}"
+git config user.email "${AUTEUR_EMAIL:-72700087+Morganic07@users.noreply.github.com}"
 
 git add -A
 
