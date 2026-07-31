@@ -15,11 +15,11 @@ l'onglet **Actions**, sauf le premier qui tourne aussi tout seul.
 
 ## Mise en route
 
-Le dépôt doit être privé et les workflows doivent vivre sur la branche par
-défaut — un `on: schedule` posé sur une autre branche ne se déclenche jamais.
+Les workflows doivent vivre sur la branche par défaut : un `on: schedule` posé
+sur une autre branche ne se déclenche jamais.
 
 ```bash
-gh repo create mon-journal --private --source=. --remote=origin --push
+gh repo create mon-journal --public --source=. --remote=origin --push
 ```
 
 Puis, une seule fois, dans **Settings → Actions → General** :
@@ -141,11 +141,8 @@ Ce que ça apprend :
 
 ## Ce qu'il faut savoir avant de le laisser tourner
 
-**Ça consomme des minutes facturées.** Sur un dépôt privé, les minutes Actions
-sont décomptées du quota mensuel — 2 000 minutes sur un compte gratuit. Le
-workflow 01 tourne quatre fois par jour ; comme chaque run est arrondi à la
-minute supérieure, compter environ 120 minutes par mois. Confortable, mais pas
-gratuit. Sur un dépôt public, rien n'est décompté.
+**Tant que le dépôt est public, les minutes Actions sont gratuites et
+illimitées** sur les runners standard. Rien à surveiller.
 
 **Les workflows planifiés finissent par être désactivés.** Après une longue
 période sans activité humaine dans le dépôt, GitHub coupe les crons et envoie
@@ -156,6 +153,38 @@ conséquence à cette échelle, mais ce n'est pas un dépôt qu'on garde propre.
 
 **Pour tout arrêter :** onglet **Actions**, sélectionner un workflow dans la
 colonne de gauche, menu `...` → *Disable workflow*. Le dépôt reste consultable.
+
+---
+
+## Le jour où il passera en privé
+
+Par ordre d'importance :
+
+**1. La facturation démarre.** Les minutes Actions sont décomptées d'un quota
+mensuel — 2 000 sur un compte gratuit — et **chaque job est arrondi à la minute
+supérieure, séparément**. Un job de quinze secondes coûte une minute pleine, et
+une matrice de huit branches coûte huit minutes pour le même travail. Le seul
+workflow qui tourne seul est le 01 : quatre fois par jour, soit environ
+120 minutes par mois. Le commentaire au-dessus de son `cron:` rappelle comment
+l'espacer. La limite de dépense d'un compte gratuit est à 0 € par défaut : le
+quota épuisé, les workflows cessent de démarrer, aucune facture n'arrive.
+
+**2. Passer en privé n'efface pas ce qui a été public.** Les forks déjà faits
+subsistent, les clones aussi, et les archives tierces ne se rétractent pas.
+Tout ce qui entre dans le dépôt pendant la phase publique doit être tenu pour
+publié définitivement — y compris l'adresse de courriel des auteurs de commit,
+que `git log` expose et qu'aucun changement de visibilité ne retire.
+
+**3. Le code n'a rien à changer.** Les six workflows se comportent
+identiquement dans les deux visibilités. Le filtrage du contexte du workflow 02
+est déjà en liste blanche : il ne laisse sortir que des clés nommées une à une,
+donc il reste correct qu'il y ait ou non des lecteurs anonymes.
+
+Un point de vigilance pour la suite, tant que le dépôt est public : aucun
+workflow ne se déclenche sur `pull_request`, et c'est ce qui empêche un fork
+d'exécuter quoi que ce soit ici. Si ce déclencheur est ajouté un jour, relire
+la question de près — `pull_request_target` en particulier donne à du code
+venu d'un fork l'accès aux secrets du dépôt.
 
 ---
 

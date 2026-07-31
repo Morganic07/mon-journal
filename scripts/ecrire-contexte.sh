@@ -18,18 +18,33 @@ numero="${NUMERO:-inconnu}"
 
 mkdir -p entrees
 
-# Le contexte github contient une clé token. GitHub la masque dans les logs,
-# mais rien ne la masquerait dans un fichier commité : elle est retirée ici,
-# avant la moindre écriture sur le disque. La clé event part aussi, parce que
-# sur un push volumineux sa charge utile fait des milliers de lignes.
+# Le contexte github contient une clé token, et sa charge utile event pèse des
+# milliers de lignes sur un push volumineux. Ni l'une ni l'autre n'a sa place
+# dans un fichier commité.
 #
-# Le filtrage reste en mémoire : un fichier temporaire hors du dépôt aurait
-# contenu le jeton en clair, le temps du run, sur le disque du runner.
-github_filtre=$(printf '%s' "$CTX_GITHUB" | jq 'del(.token, .event)')
+# Le filtrage se fait par liste blanche, pas par `del(.token, .event)`. Une
+# liste noire laisse passer tout ce qu'on n'a pas prévu : le jour où GitHub
+# ajoute une clé au contexte, elle atterrirait dans le dépôt sans qu'on l'ait
+# décidé. Ici, ce qui n'est pas nommé ne sort pas — le fichier reste sûr même
+# si le dépôt devient public, et même si le contexte s'enrichit.
+PUBLIABLES='[
+  "event_name", "ref", "ref_name", "ref_type", "sha",
+  "run_id", "run_number", "run_attempt", "retention_days",
+  "workflow", "workflow_ref", "job", "action", "actor", "triggering_actor",
+  "repository", "repository_owner", "repository_visibility",
+  "server_url", "api_url", "graphql_url", "workspace"
+]'
+
+github_filtre=$(printf '%s' "$CTX_GITHUB" \
+  | jq --argjson garder "$PUBLIABLES" \
+       'with_entries(select(.key as $k | $garder | index($k)))')
 runner_filtre=$(printf '%s' "$CTX_RUNNER" | jq '.')
 
-retirees=$(printf '%s' "$CTX_GITHUB" \
-  | jq -r '[keys[] | select(. == "token" or . == "event")] | join(", ")')
+# Ce qui a été écarté est annoncé dans le fichier : sans cette ligne, on ne
+# saurait pas qu'un filtrage a eu lieu, ni qu'il faudrait le relire.
+ecartees=$(printf '%s' "$CTX_GITHUB" \
+  | jq -r --argjson garder "$PUBLIABLES" \
+       '[keys[] | select(. as $k | $garder | index($k) | not)] | join(", ")')
 
 {
 cat <<EOF
@@ -39,7 +54,8 @@ cat <<EOF
 
 ## Contexte \`github\`
 
-Clés retirées avant écriture : ${retirees:-aucune}.
+Seules les clés d'une liste blanche sont écrites ici. Clés écartées :
+${ecartees:-aucune}.
 
 \`\`\`json
 EOF

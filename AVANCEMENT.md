@@ -6,8 +6,9 @@
       *Critère : `git status` propre après le premier commit.*
 - [x] **1.2** `scripts/pousser.sh` commite, pousse, et réessaie après rebase.
       *Critère : `bash -n` passe ; sortie 0 sans erreur quand rien n'a changé.*
-- [ ] **1.3** Dépôt privé créé sur GitHub et poussé.
-      *Critère : `gh repo view --json visibility` renvoie `PRIVATE`.*
+- [ ] **1.3** Dépôt créé sur GitHub et poussé, public pour commencer.
+      *Critère : `gh repo view --json visibility` renvoie `PUBLIC`, et les six
+      workflows apparaissent dans l'onglet Actions.*
 
 ## Epic 2 — Les six mécaniques
 
@@ -32,8 +33,10 @@
 - [ ] **3.1** Le cron se déclenche seul.
       *Critère : un run de `01` avec `schedule` comme déclencheur apparaît dans
       l'historique sans intervention.*
-- [ ] **3.2** Consommation de minutes relevée après une semaine.
-      *Critère : chiffre noté ici, comparé aux ~120 min/mois annoncés.*
+- [ ] **3.2** Bascule en privé, le jour venu.
+      *Critère : le cron espacé selon le commentaire du workflow 01, et la
+      consommation relevée après une semaine, comparée aux ~120 min/mois
+      annoncés. Sans objet tant que le dépôt est public.*
 
 ## Pistes, si l'envie vient
 

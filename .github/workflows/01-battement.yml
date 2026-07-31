@@ -6,6 +6,10 @@ on:
   schedule:
     # Minute décalée volontairement. Les crons calés sur :00 partent tous en
     # même temps sur toute la plateforme et sont les plus souvent retardés.
+    #
+    # Quatre exécutions par jour, gratuites tant que le dépôt est public. Le
+    # jour où il passe en privé, chacune sera facturée une minute pleine —
+    # environ 120 par mois. Espacer alors à "17 3 * * *" pour tomber à 30.
     - cron: "17 */6 * * *"
   workflow_dispatch:
 
