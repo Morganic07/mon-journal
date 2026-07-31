@@ -14,7 +14,7 @@ C'est tout. Le reste n'est que du détail.
 
 ## Ce qui se passe sans intervention
 
-Quatre fois par jour, sans que personne ne touche à rien :
+Une fois par heure, sans que personne ne touche à rien :
 
 1. Un ordinateur s'allume quelque part dans un centre de données.
 2. Il télécharge ce dossier.
@@ -22,12 +22,12 @@ Quatre fois par jour, sans que personne ne touche à rien :
 4. Il renvoie le dossier à GitHub.
 5. Il est détruit. Définitivement.
 
-Six heures plus tard, un autre ordinateur — pas le même, il n'existait pas
+Une heure plus tard, un autre ordinateur — pas le même, il n'existait pas
 encore — recommence.
 
 Résultat : **un fichier qui s'allonge tout seul**.
 
-Les quatre passages ont lieu à **00:17, 06:17, 12:17 et 18:17 UTC**. Pour les
+Le passage a lieu **à la minute 17 de chaque heure**, en UTC. Pour le
 déplacer, voir *Changer la fréquence des commits automatiques* plus bas.
 
 ## Les six boutons
@@ -94,26 +94,26 @@ tient dans une seule ligne, au début de
 ```yaml
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 * * * *"
 ```
 
-Ce réglage donne quatre passages par jour : **00:17, 06:17, 12:17 et 18:17
-UTC**.
+Ce réglage donne un passage par heure, **à la minute 17**, en UTC.
 
 **GitHub Actions ne connaît que l'UTC**, et aucun réglage de fuseau n'existe.
-En heure de Paris, ces créneaux tombent donc à 02:17 / 08:17 / 14:17 / 20:17
-l'été, et une heure plus tôt l'hiver : le décalage change deux fois par an
-alors que le fichier, lui, ne bouge pas.
+Sans conséquence pour un réglage horaire comme celui-ci, mais décisif dès
+qu'on vise une heure précise : `0 3 * * *` part à 5 h du matin heure de Paris
+l'été, et 4 h l'hiver — le décalage bouge deux fois par an alors que le
+fichier, lui, ne change pas.
 
 Les cinq champs se lisent ainsi :
 
 ```
 ┌───────────── minute           (0-59)
-│  ┌────────── heure            (0-23, en UTC)
-│  │    ┌───── jour du mois     (1-31)
-│  │    │ ┌─── mois             (1-12)
-│  │    │ │ ┌─ jour de semaine  (0-6, 0 = dimanche)
-17 */6  * * *
+│ ┌─────────── heure            (0-23, en UTC)
+│ │ ┌───────── jour du mois     (1-31)
+│ │ │ ┌─────── mois             (1-12)
+│ │ │ │ ┌───── jour de semaine  (0-6, 0 = dimanche)
+* * * * *
 ```
 
 Quelques réglages courants :
@@ -121,7 +121,7 @@ Quelques réglages courants :
 | Pour... | Écrire |
 |---|---|
 | une fois par jour, à 03:00 UTC | `0 3 * * *` |
-| toutes les heures | `0 * * * *` |
+| toutes les heures | `17 * * * *` — minute décalée, réglage courant |
 | toutes les 15 minutes | `*/15 * * * *` |
 | en semaine seulement, à 09:00 UTC | `0 9 * * 1-5` |
 | le 1ᵉʳ de chaque mois | `0 0 1 * *` |
@@ -158,8 +158,8 @@ travail disparaît avec la machine.
 
 ## Les six mécaniques
 
-**01 · Battement — écrire dans son propre dépôt.** Une ligne horodatée toutes
-les six heures.
+**01 · Battement — écrire dans son propre dépôt.** Une ligne horodatée à
+chaque heure.
 
 - Le jeton donné à un workflow est **en lecture seule**. Sans
   `permissions: contents: write`, le push part en 403. C'est l'erreur la plus
@@ -267,8 +267,8 @@ identique dans les deux cas.
 En privé, le piège n'est pas la durée mais l'arrondi : **chaque job est arrondi
 à la minute supérieure, séparément**. Un job de quinze secondes coûte une
 minute pleine, une matrice de huit branches en coûte huit. Seul le `01` tourne
-sans intervention, quatre fois par jour, soit environ **120 minutes par mois :
-6 % du quota**. Pour réduire, espacer le cron — voir *Changer la fréquence des
+sans intervention, une fois par heure, soit environ **720 minutes par mois :
+36 % du quota**. Pour réduire, espacer le cron — voir *Changer la fréquence des
 commits automatiques*.
 
 La limite de dépense d'un compte gratuit est à **0 € par défaut** : quota
@@ -280,8 +280,9 @@ Pour connaître la visibilité courante : `gh repo view --json visibility`.
 période sans activité humaine, GitHub coupe les crons et prévient par courriel.
 Un clic sur *Enable workflow* les relance.
 
-**L'historique va gonfler.** Quatre commits par jour, indéfiniment. Sans
-conséquence à cette échelle, mais ce n'est pas un dépôt qu'on garde propre.
+**L'historique va gonfler.** Vingt-quatre commits par jour, indéfiniment —
+soit près de 9 000 par an. Sans conséquence technique à cette échelle, mais ce
+n'est pas un dépôt qu'on garde propre.
 
 ## Changer de visibilité
 
