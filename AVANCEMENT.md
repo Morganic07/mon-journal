@@ -30,9 +30,11 @@
       déclenché `04b`, le commit `a1f8c08` poussé par le workflow 01 ne l'a
       pas fait. Deux push, un seul run de `04b`. Lancer `04` reste utile pour
       voir la même chose avec un workflow dédié.*
-- [ ] **2.5** `05 · Collision` fait perdre au moins une voie.
-      *Critère : le journal d'au moins une voie contient « Push refusé », suivi
-      d'un rebase et d'une seconde tentative réussie.*
+- [x] **2.5** `05 · Collision` fait perdre au moins une voie.
+      *Vérifié, et mieux que demandé : les trois issues sur un seul run. La
+      voie b passe du premier coup, la voie a est refusée une fois, la voie c
+      deux fois — refusée, rebasée, refusée à nouveau, puis poussée à la
+      troisième tentative. Les trois lignes sont dans le dépôt.*
 
 ## Epic 3 — Vie du dépôt
 
