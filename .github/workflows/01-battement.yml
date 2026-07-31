@@ -7,9 +7,9 @@ on:
     # Minute décalée volontairement. Les crons calés sur :00 partent tous en
     # même temps sur toute la plateforme et sont les plus souvent retardés.
     #
-    # Le dépôt est privé : chacune des quatre exécutions quotidiennes est
-    # facturée une minute pleine, soit environ 120 par mois sur les 2 000 du
-    # quota gratuit. Passer à "17 3 * * *" ramènerait à 30.
+    # Quatre exécutions par jour. Gratuites tant que le dépôt est public ;
+    # en privé, chacune est facturée une minute pleine — environ 120 par mois
+    # sur les 2 000 du quota gratuit. Passer à "17 3 * * *" ramènerait à 30.
     #
     # Mesuré sur ce dépôt : réglé à "*/5 * * * *" pendant 3 h 20, il n'a pas
     # produit les 40 exécutions attendues mais 2, à 20:24 et 21:38 — des

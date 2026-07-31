@@ -244,18 +244,25 @@ exécutions manquées sont **sautées, pas empilées**. Ne jamais bâtir sur un
 
 ## Ce qu'il faut savoir avant de le laisser tourner
 
-**Le dépôt est privé, donc les minutes Actions sont facturées.** Elles sont
-décomptées d'un quota mensuel — 2 000 sur un compte gratuit — et **chaque job
-est arrondi à la minute supérieure, séparément** : un job de quinze secondes
-coûte une minute pleine, une matrice de huit branches en coûte huit. Seul le
-`01` tourne sans intervention, quatre fois par jour, soit environ **120 minutes
-par mois : 6 % du quota**. Pour réduire, espacer le cron — voir *Changer la
-fréquence des commits automatiques*.
+**Le coût dépend de la visibilité du dépôt**, et d'elle seule. Le code est
+identique dans les deux cas.
+
+| Visibilité | Minutes Actions |
+|---|---|
+| **publique** | gratuites et illimitées sur les runners standard |
+| **privée** | décomptées d'un quota mensuel — 2 000 sur un compte gratuit |
+
+En privé, le piège n'est pas la durée mais l'arrondi : **chaque job est arrondi
+à la minute supérieure, séparément**. Un job de quinze secondes coûte une
+minute pleine, une matrice de huit branches en coûte huit. Seul le `01` tourne
+sans intervention, quatre fois par jour, soit environ **120 minutes par mois :
+6 % du quota**. Pour réduire, espacer le cron — voir *Changer la fréquence des
+commits automatiques*.
 
 La limite de dépense d'un compte gratuit est à **0 € par défaut** : quota
 épuisé, les workflows cessent simplement de démarrer, aucune facture n'arrive.
-Sur un dépôt public, rien de tout cela ne s'applique — les minutes y sont
-gratuites et illimitées sur les runners standard.
+
+Pour connaître la visibilité courante : `gh repo view --json visibility`.
 
 **Les workflows planifiés finissent par être désactivés.** Après une longue
 période sans activité humaine, GitHub coupe les crons et prévient par courriel.
@@ -264,35 +271,35 @@ Un clic sur *Enable workflow* les relance.
 **L'historique va gonfler.** Quatre commits par jour, indéfiniment. Sans
 conséquence à cette échelle, mais ce n'est pas un dépôt qu'on garde propre.
 
-## Le passage en privé
+## Changer de visibilité
 
-Le dépôt a d'abord été public pendant quelques heures, le temps de vérifier les
-six mécaniques, puis basculé en privé. Ce que cette bascule a changé, et ce
-qu'elle n'a pas changé.
+Le dépôt a fait l'aller-retour public → privé → public, pour vérifier ce que la
+bascule change. Réponse : **le coût, et rien d'autre.**
 
-**1. La facturation a démarré.** Détaillée juste au-dessus. C'est le seul
-effet qui demande une surveillance, et le seul levier est la fréquence du cron.
+```bash
+gh repo edit --visibility private     # ou public
+```
+
+Trois choses à savoir avant de basculer.
+
+**1. Le code n'a rien à changer.** Les six workflows se comportent
+identiquement dans les deux visibilités. Le filtrage du contexte du `02` est en
+liste blanche, donc correct qu'il y ait ou non des lecteurs anonymes.
 
 **2. Ce qui a été public le reste.** Les forks et les clones déjà faits
-subsistent ; repasser en privé ne les rétracte pas, et les archives tierces ne
-se rétractent pas non plus. Tout ce qui entre dans un dépôt pendant une phase
-publique doit être tenu pour publié définitivement — y compris l'adresse de
-courriel des auteurs de commit, que `git log` expose et qu'aucun changement de
-visibilité ne retire.
+subsistent ; repasser en privé ne les rétracte pas, et les archives tierces non
+plus. Tout ce qui entre dans un dépôt pendant une phase publique doit être tenu
+pour publié définitivement — y compris l'adresse de courriel des auteurs de
+commit, que `git log` expose et qu'aucun changement de visibilité ne retire.
+C'est pourquoi les commits d'ici utilisent l'adresse `noreply` de GitHub.
 
-Ici, rien n'a fuité : le dépôt n'a eu **aucun fork, aucune étoile et aucun
-observateur** pendant sa phase publique, et les commits utilisent l'adresse
-`noreply` de GitHub plutôt qu'une adresse personnelle.
+**3. La facturation suit la visibilité**, voir le tableau plus haut.
 
-**3. Le code n'a rien eu à changer.** Les six workflows se comportent
-identiquement dans les deux visibilités. Le filtrage du contexte du `02` était
-déjà en liste blanche, donc correct qu'il y ait ou non des lecteurs anonymes.
-
-Un point de vigilance qui vaut dans les deux sens : **aucun workflow ne se
-déclenche sur `pull_request`**. C'est ce qui empêchait un fork d'exécuter quoi
-que ce soit ici du temps où le dépôt était public. Si ce déclencheur est ajouté
-un jour, et surtout si le dépôt redevient public, relire la question de près —
-`pull_request_target` donne à du code venu d'un fork l'accès aux secrets.
+Un point de vigilance permanent : **aucun workflow ne se déclenche sur
+`pull_request`**. C'est ce qui empêche un fork d'exécuter quoi que ce soit ici
+pendant les phases publiques. Si ce déclencheur est ajouté un jour, relire la
+question de près — `pull_request_target` donne à du code venu d'un fork l'accès
+aux secrets du dépôt.
 
 ## Les fichiers
 
