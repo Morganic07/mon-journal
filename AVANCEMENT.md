@@ -16,9 +16,10 @@
 - [x] **2.1** `01 · Battement` écrit une ligne et la pousse.
       *Vérifié : run #1 en `workflow_dispatch`, commit `a1f8c08` par
       `github-actions[bot]`, `entrees/battements.md` créé.*
-- [ ] **2.2** `02 · Contexte` écrit le contexte sans fuiter le jeton.
-      *Critère : `grep -c 'ghs_' entrees/contexte.md` renvoie 0, et le fichier
-      annonce `Clés retirées : token, event`.*
+- [x] **2.2** `02 · Contexte` écrit le contexte sans fuiter le jeton.
+      *Vérifié : commit `2bc37c5`. La liste blanche a écarté 22 clés, dont
+      `token` et `secret_source` — cette dernière serait passée avec l'ancien
+      filtrage par liste noire.*
 - [ ] **2.3** `03 · Matrice` génère N fragments et les commite en un passage.
       *Critère : lancé avec `combien = 5`, produit `fragments/fragment-1.md` à
       `fragment-5.md` en un seul commit.*
