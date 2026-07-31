@@ -44,10 +44,14 @@
       `bccc2e2`. Mesure au passage — réglé sur `*/5` pendant 3 h 20, il a
       produit 2 exécutions au lieu de 40, à des heures ne correspondant à
       aucun créneau. Consigné dans le README.*
-- [ ] **3.2** Bascule en privé, le jour venu.
-      *Critère : le cron espacé selon le commentaire du workflow 01, et la
-      consommation relevée après une semaine, comparée aux ~120 min/mois
-      annoncés. Sans objet tant que le dépôt est public.*
+- [x] **3.2** Bascule en privé.
+      *Fait : visibilité `PRIVATE`, après une phase publique sans aucun fork,
+      étoile ni observateur. Cron laissé à `17 */6 * * *` — 120 min/mois, 6 %
+      du quota, choix assumé plutôt que l'espacement suggéré. Le README et le
+      commentaire du cron sont passés au présent.*
+      *Reste à faire une fois : relever la consommation réelle après une
+      semaine sur github.com/settings/billing et la comparer aux 120 min
+      annoncées.*
 
 ## Pistes, si l'envie vient
 

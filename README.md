@@ -244,8 +244,18 @@ exécutions manquées sont **sautées, pas empilées**. Ne jamais bâtir sur un
 
 ## Ce qu'il faut savoir avant de le laisser tourner
 
-**Tant que le dépôt est public, les minutes sont gratuites et illimitées** sur
-les runners standard. Rien à surveiller.
+**Le dépôt est privé, donc les minutes Actions sont facturées.** Elles sont
+décomptées d'un quota mensuel — 2 000 sur un compte gratuit — et **chaque job
+est arrondi à la minute supérieure, séparément** : un job de quinze secondes
+coûte une minute pleine, une matrice de huit branches en coûte huit. Seul le
+`01` tourne sans intervention, quatre fois par jour, soit environ **120 minutes
+par mois : 6 % du quota**. Pour réduire, espacer le cron — voir *Changer la
+fréquence des commits automatiques*.
+
+La limite de dépense d'un compte gratuit est à **0 € par défaut** : quota
+épuisé, les workflows cessent simplement de démarrer, aucune facture n'arrive.
+Sur un dépôt public, rien de tout cela ne s'applique — les minutes y sont
+gratuites et illimitées sur les runners standard.
 
 **Les workflows planifiés finissent par être désactivés.** Après une longue
 période sans activité humaine, GitHub coupe les crons et prévient par courriel.
@@ -254,29 +264,35 @@ Un clic sur *Enable workflow* les relance.
 **L'historique va gonfler.** Quatre commits par jour, indéfiniment. Sans
 conséquence à cette échelle, mais ce n'est pas un dépôt qu'on garde propre.
 
-## Le jour où il passera en privé
+## Le passage en privé
 
-**1. La facturation démarre.** Quota mensuel — 2 000 minutes sur un compte
-gratuit — et **chaque job est arrondi à la minute supérieure, séparément**. Un
-job de quinze secondes coûte une minute pleine ; une matrice de huit branches
-coûte huit minutes. Seul le 01 tourne seul : environ 120 minutes par mois. Le
-commentaire au-dessus de son `cron:` rappelle comment l'espacer. La limite de
-dépense d'un compte gratuit est à 0 € par défaut : quota épuisé, les workflows
-cessent de démarrer, aucune facture n'arrive.
+Le dépôt a d'abord été public pendant quelques heures, le temps de vérifier les
+six mécaniques, puis basculé en privé. Ce que cette bascule a changé, et ce
+qu'elle n'a pas changé.
 
-**2. Passer en privé n'efface pas ce qui a été public.** Les forks et les
-clones déjà faits subsistent. Tout ce qui est entré dans le dépôt pendant la
-phase publique doit être tenu pour publié définitivement — y compris l'adresse
-de courriel des auteurs de commit, que `git log` expose. C'est pourquoi les
-commits d'ici utilisent l'adresse `noreply` de GitHub.
+**1. La facturation a démarré.** Détaillée juste au-dessus. C'est le seul
+effet qui demande une surveillance, et le seul levier est la fréquence du cron.
 
-**3. Le code n'a rien à changer.** Les six workflows se comportent
-identiquement dans les deux visibilités.
+**2. Ce qui a été public le reste.** Les forks et les clones déjà faits
+subsistent ; repasser en privé ne les rétracte pas, et les archives tierces ne
+se rétractent pas non plus. Tout ce qui entre dans un dépôt pendant une phase
+publique doit être tenu pour publié définitivement — y compris l'adresse de
+courriel des auteurs de commit, que `git log` expose et qu'aucun changement de
+visibilité ne retire.
 
-Un point de vigilance tant que le dépôt est public : **aucun workflow ne se
-déclenche sur `pull_request`**, et c'est ce qui empêche un fork d'exécuter quoi
-que ce soit ici. Si ce déclencheur est ajouté un jour, relire la question de
-près — `pull_request_target` donne à du code venu d'un fork l'accès aux secrets.
+Ici, rien n'a fuité : le dépôt n'a eu **aucun fork, aucune étoile et aucun
+observateur** pendant sa phase publique, et les commits utilisent l'adresse
+`noreply` de GitHub plutôt qu'une adresse personnelle.
+
+**3. Le code n'a rien eu à changer.** Les six workflows se comportent
+identiquement dans les deux visibilités. Le filtrage du contexte du `02` était
+déjà en liste blanche, donc correct qu'il y ait ou non des lecteurs anonymes.
+
+Un point de vigilance qui vaut dans les deux sens : **aucun workflow ne se
+déclenche sur `pull_request`**. C'est ce qui empêchait un fork d'exécuter quoi
+que ce soit ici du temps où le dépôt était public. Si ce déclencheur est ajouté
+un jour, et surtout si le dépôt redevient public, relire la question de près —
+`pull_request_target` donne à du code venu d'un fork l'accès aux secrets.
 
 ## Les fichiers
 
