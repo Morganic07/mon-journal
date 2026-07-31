@@ -60,10 +60,16 @@ jobs:
       # Chaque branche de matrice tourne sur sa propre machine, sans disque
       # partagé. L'artefact est le seul moyen de faire descendre un fichier
       # vers le job suivant.
+      #
+      # On téléverse LE fichier produit, pas le dossier qui le contient. Avec
+      # `path: fragments/`, l'artefact embarquerait aussi les fragments des
+      # runs précédents ramenés par le checkout ; à la descente, le
+      # merge-multiple du job suivant les écraserait les uns par les autres
+      # dans un ordre arbitraire, et un seul des cinq serait à jour.
       - uses: actions/upload-artifact@v4
         with:
           name: fragment-${{ matrix.indice }}
-          path: fragments/
+          path: fragments/fragment-${{ matrix.indice }}.md
           retention-days: 1
 
   rassembler:

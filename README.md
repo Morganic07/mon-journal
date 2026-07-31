@@ -90,6 +90,17 @@ Ce que ça apprend :
 - **Les jobs ne partagent aucun disque.** Chaque branche de matrice tourne sur
   une machine neuve. L'artefact est le seul canal pour faire descendre un
   fichier vers le job suivant.
+- **Un artefact téléverse ce qu'on lui donne, y compris ce qu'on n'a pas
+  produit.** Ce workflow a d'abord été écrit avec `path: fragments/`. Comme
+  chaque job fait un `checkout`, son dossier `fragments/` contenait déjà les
+  fichiers des runs précédents : les cinq artefacts embarquaient les cinq
+  fichiers, et le `merge-multiple` du job de rassemblement les écrasait les uns
+  par les autres. Un seul fragment sur cinq ressortait à jour. Le premier run
+  n'a rien montré — le dossier n'existait pas encore dans le dépôt. Téléverser
+  le fichier, pas son dossier.
+- **Le nom d'hôte ne distingue pas les runners.** Les machines d'un même run le
+  partagent. Ce qui diffère réellement, et que les fragments relèvent : le
+  runner alloué, l'identifiant machine, et l'uptime.
 - **Les permissions se déclarent au plus près.** Le workflow part sur
   `permissions: {}`, le job de génération prend `contents: read`, seul le job
   de rassemblement obtient `contents: write`.
