@@ -91,6 +91,41 @@ Trois limites à connaître :
 
 ---
 
+## Ce qu'il faut savoir avant de le laisser tourner
+
+**Le coût dépend de la visibilité du dépôt**, et d'elle seule. Le code est
+identique dans les deux cas.
+
+| Visibilité | Minutes Actions |
+|---|---|
+| **publique** | gratuites et illimitées sur les runners standard |
+| **privée** | décomptées d'un quota mensuel 2 000 sur un compte gratuit |
+
+
+**Les workflows planifiés finissent par être désactivés.** Après une longue
+période sans activité humaine, GitHub coupe les crons et prévient par courriel.
+Un clic sur *Enable workflow* les relance.
+
+## Changer de visibilité
+
+```bash
+gh repo edit --visibility private   # ou public
+```
+
+**La facturation suit la visibilité**
+
+
+## Les fichiers
+
+```
+.github/workflows/   les six fiches de consigne, une par mécanique
+scripts/        la logique, sortie des blocs `run:`
+entrees/        produit par les workflows ne pas éditer à la main
+fragments/       produit par le workflow 03
+```
+
+
+
 ## Les six mécaniques
 
 **01 · Battement écrire dans son propre dépôt.** Une ligne horodatée à
@@ -163,37 +198,4 @@ chaque heure.
  les runs. Les workflows 01 à 04 partagent le groupe `journal` pour ça ; `05`
  s'en passe exprès.
 
-
-## Ce qu'il faut savoir avant de le laisser tourner
-
-**Le coût dépend de la visibilité du dépôt**, et d'elle seule. Le code est
-identique dans les deux cas.
-
-| Visibilité | Minutes Actions |
-|---|---|
-| **publique** | gratuites et illimitées sur les runners standard |
-| **privée** | décomptées d'un quota mensuel 2 000 sur un compte gratuit |
-
-
-**Les workflows planifiés finissent par être désactivés.** Après une longue
-période sans activité humaine, GitHub coupe les crons et prévient par courriel.
-Un clic sur *Enable workflow* les relance.
-
-## Changer de visibilité
-
-```bash
-gh repo edit --visibility private   # ou public
-```
-
-**La facturation suit la visibilité**
-
-
-## Les fichiers
-
-```
-.github/workflows/   les six fiches de consigne, une par mécanique
-scripts/        la logique, sortie des blocs `run:`
-entrees/        produit par les workflows ne pas éditer à la main
-fragments/       produit par le workflow 03
-```
 
