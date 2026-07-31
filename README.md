@@ -52,8 +52,9 @@ Trois précisions sur cette colonne de droite :
 - **`04b` est le seul à ne rien produire.** Sa sortie est le *résumé* affiché
   sur la page de son exécution, dans l'onglet Actions. Les cinq autres en
   écrivent un aussi, en complément de leurs fichiers.
-- **Un fichier n'existe qu'une fois son bouton pressé.** `entrees/domino.md`
-  reste absent tant que `04` n'a pas tourné au moins une fois.
+- **Un fichier n'existe qu'une fois son bouton pressé au moins une fois.** Sur
+  un dépôt fraîchement cloné, aucun de ces chemins n'est présent : ils
+  apparaissent au fil des exécutions.
 
 ## À quoi ça sert ?
 

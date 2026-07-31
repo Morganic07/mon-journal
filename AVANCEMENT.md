@@ -28,8 +28,9 @@
 - [x] **2.4** Le non-déclenchement est démontré.
       *Vérifié sans avoir eu besoin de lancer `04` : le push humain a
       déclenché `04b`, le commit `a1f8c08` poussé par le workflow 01 ne l'a
-      pas fait. Deux push, un seul run de `04b`. Lancer `04` reste utile pour
-      voir la même chose avec un workflow dédié.*
+      pas fait. Deux push, un seul run de `04b`. Confirmé ensuite avec le
+      workflow dédié : `04` a poussé le commit `92a30da`, et le compteur de
+      runs de `04b` est resté à 13 avant comme après.*
 - [x] **2.5** `05 · Collision` fait perdre au moins une voie.
       *Vérifié, et mieux que demandé : les trois issues sur un seul run. La
       voie b passe du premier coup, la voie a est refusée une fois, la voie c
