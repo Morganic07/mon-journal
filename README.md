@@ -27,6 +27,9 @@ encore — recommence.
 
 Résultat : **un fichier qui s'allonge tout seul**.
 
+Les quatre passages ont lieu à **00:17, 06:17, 12:17 et 18:17 UTC**. Pour les
+déplacer, voir *Changer la fréquence des commits automatiques* plus bas.
+
 ## Les cinq boutons
 
 Le reste, ce sont des boutons dans l'onglet **Actions** : appuyer, puis
@@ -68,6 +71,59 @@ gh workflow run "02 · Contexte"
 
 **Pour tout arrêter :** onglet Actions, choisir un workflow à gauche, menu `...`
 → *Disable workflow*. Le dépôt reste consultable.
+
+## Changer la fréquence des commits automatiques
+
+Les commits automatiques viennent du workflow `01 · Battement`. Leur horaire
+tient dans une seule ligne, au début de
+`.github/workflows/01-battement.yml` :
+
+```yaml
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+```
+
+Ce réglage donne quatre passages par jour : **00:17, 06:17, 12:17 et 18:17
+UTC**.
+
+**GitHub Actions ne connaît que l'UTC**, et aucun réglage de fuseau n'existe.
+En heure de Paris, ces créneaux tombent donc à 02:17 / 08:17 / 14:17 / 20:17
+l'été, et une heure plus tôt l'hiver : le décalage change deux fois par an
+alors que le fichier, lui, ne bouge pas.
+
+Les cinq champs se lisent ainsi :
+
+```
+┌───────────── minute           (0-59)
+│  ┌────────── heure            (0-23, en UTC)
+│  │    ┌───── jour du mois     (1-31)
+│  │    │ ┌─── mois             (1-12)
+│  │    │ │ ┌─ jour de semaine  (0-6, 0 = dimanche)
+17 */6  * * *
+```
+
+Quelques réglages courants :
+
+| Pour... | Écrire |
+|---|---|
+| une fois par jour, à 03:00 UTC | `0 3 * * *` |
+| toutes les heures | `0 * * * *` |
+| toutes les 15 minutes | `*/15 * * * *` |
+| en semaine seulement, à 09:00 UTC | `0 9 * * 1-5` |
+| le 1ᵉʳ de chaque mois | `0 0 1 * *` |
+
+Après modification, il faut commiter et pousser **sur la branche par défaut** :
+un `schedule` posé sur une autre branche ne se déclenche jamais. La prise en
+compte demande quelques minutes.
+
+Trois limites à connaître :
+
+- l'intervalle minimum accepté est de **5 minutes** ;
+- l'heure demandée n'est qu'une intention, et l'écart réel est large — voir
+  *Ce qui a cassé en route* ;
+- une minute ronde (`0`, `30`) tombe dans l'embouteillage des crons calés sur
+  l'heure ; une minute décalée comme `:17` est mieux servie.
 
 ---
 
