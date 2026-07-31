@@ -1,0 +1,35 @@
+name: 02 · Contexte
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: journal
+  cancel-in-progress: false
+
+jobs:
+  inspecter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Écrire le contexte d'exécution
+        env:
+          # toJSON sérialise un contexte entier vers une variable. Le passer
+          # par env plutôt que de l'interpoler dans le script évite qu'un
+          # guillemet présent dans les données ne casse la ligne de commande.
+          CTX_GITHUB: ${{ toJSON(github) }}
+          CTX_RUNNER: ${{ toJSON(runner) }}
+          NUMERO: ${{ github.run_number }}
+        run: ./scripts/ecrire-contexte.sh
+
+      - name: Commiter et pousser
+        env:
+          NUMERO: ${{ github.run_number }}
+        run: './scripts/pousser.sh "journal : contexte du run $NUMERO"'
+
+      - name: Résumé
+        run: cat entrees/contexte.md >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,63 @@
+name: 01 · Battement
+
+# Deux déclencheurs pour le même travail : la planification, qui fait vivre le
+# dépôt sans intervention, et le bouton manuel, pour ne pas attendre l'heure.
+on:
+  schedule:
+    # Minute décalée volontairement. Les crons calés sur :00 partent tous en
+    # même temps sur toute la plateforme et sont les plus souvent retardés.
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+# Le jeton fourni au workflow est en lecture seule par défaut. Sans cette
+# ligne, le push échoue en 403 : c'est l'erreur numéro un des workflows qui
+# écrivent dans leur propre dépôt.
+permissions:
+  contents: write
+
+# Une seule écriture du journal à la fois. Deux runs simultanés sur le même
+# fichier finiraient en collision de push — voir le workflow 05.
+concurrency:
+  group: journal
+  cancel-in-progress: false
+
+jobs:
+  battre:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Les valeurs de contexte passent par `env` au lieu d'être interpolées
+      # dans le script. ${{ }} est substitué textuellement avant que bash ne
+      # voie la ligne : une valeur contenant un guillemet ou un point-virgule
+      # s'exécuterait comme du code. Ici les valeurs sont sûres, mais la
+      # bonne habitude se prend sur les cas sûrs.
+      - name: Ajouter une ligne au journal
+        env:
+          DECLENCHEUR: ${{ github.event_name }}
+          NUMERO: ${{ github.run_number }}
+        run: |
+          mkdir -p entrees
+          fichier=entrees/battements.md
+          if [ ! -f "$fichier" ]; then
+            printf '# Battements\n\nUne ligne par exécution du workflow 01.\n\n' > "$fichier"
+          fi
+          printf -- '- %s — déclencheur `%s` — run #%s\n' \
+            "$(date -u '+%Y-%m-%d %H:%M UTC')" "$DECLENCHEUR" "$NUMERO" >> "$fichier"
+
+      - name: Commiter et pousser
+        env:
+          NUMERO: ${{ github.run_number }}
+        # Quotes simples obligatoires : un `: ` dans un scalaire YAML nu est
+        # lu comme un séparateur clé/valeur et le fichier ne se charge plus.
+        run: './scripts/pousser.sh "journal : battement $NUMERO"'
+
+      - name: Résumé
+        run: |
+          {
+            echo "### Battement enregistré"
+            echo
+            echo '```'
+            tail -n 5 entrees/battements.md
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

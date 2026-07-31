@@ -1,0 +1,7 @@
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.mcp.json
+.env
+.env.local
+CLAUDE-SECURITY-*

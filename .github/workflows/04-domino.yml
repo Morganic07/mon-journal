@@ -1,0 +1,49 @@
+name: 04 · Domino
+
+# Ce workflow pousse un commit. Le workflow 04b écoute les push. Lancer
+# celui-ci et constater que 04b ne se déclenche pas : c'est la démonstration.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: journal
+  cancel-in-progress: false
+
+jobs:
+  pousser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Écrire une trace
+        env:
+          NUMERO: ${{ github.run_number }}
+        run: |
+          mkdir -p entrees
+          fichier=entrees/domino.md
+          if [ ! -f "$fichier" ]; then
+            printf '# Domino\n\nUne ligne par push émis depuis un workflow.\n\n' > "$fichier"
+          fi
+          printf -- '- %s — push émis par le run #%s\n' \
+            "$(date -u '+%Y-%m-%d %H:%M UTC')" "$NUMERO" >> "$fichier"
+
+      - name: Commiter et pousser
+        env:
+          NUMERO: ${{ github.run_number }}
+        run: './scripts/pousser.sh "domino : push du run $NUMERO"'
+
+      - name: Ce qu'il faut aller vérifier
+        run: |
+          {
+            echo "### Push émis"
+            echo
+            echo "Ouvrir l'onglet **Actions** : aucun run de **04b · Écoute des"
+            echo "push** ne doit apparaître pour ce commit."
+            echo
+            echo "Le jeton fourni au workflow ne redéclenche aucun workflow."
+            echo "C'est un garde-fou anti-boucle infinie, et il n'est pas"
+            echo "désactivable — il faut d'autres identifiants pour le lever."
+          } >> "$GITHUB_STEP_SUMMARY"

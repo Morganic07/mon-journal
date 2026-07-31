@@ -1,0 +1,99 @@
+name: 03 · Matrice et artefacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      combien:
+        description: "Nombre de fragments à générer (1 à 8)"
+        type: number
+        default: 3
+        required: false
+
+# Aucune permission par défaut : chaque job élève seulement ce dont il a
+# besoin. Un job qui ne commite pas n'a aucune raison de pouvoir écrire.
+permissions: {}
+
+jobs:
+  # La taille d'une matrice ne peut pas dépendre d'une entrée utilisateur
+  # directement : elle est figée à l'analyse du fichier. Le détour est de la
+  # faire calculer par un premier job, qui la publie en sortie JSON.
+  preparer:
+    runs-on: ubuntu-latest
+    outputs:
+      indices: ${{ steps.calcul.outputs.indices }}
+    steps:
+      - name: Construire la liste des indices
+        id: calcul
+        env:
+          COMBIEN: ${{ inputs.combien }}
+        run: |
+          n="${COMBIEN:-3}"
+          # Une entrée de type number arrive quand même sous forme de texte.
+          case "$n" in
+            ''|*[!0-9]*) n=3 ;;
+          esac
+          if [ "$n" -lt 1 ] || [ "$n" -gt 8 ]; then n=3; fi
+          indices=$(jq -nc --argjson n "$n" '[range(1; $n + 1)]')
+          echo "indices=$indices" >> "$GITHUB_OUTPUT"
+          echo "Matrice de $n fragments : $indices"
+
+  fragment:
+    needs: preparer
+    runs-on: ubuntu-latest
+    permissions:
+      # Cloner un dépôt privé demande déjà le droit de lecture.
+      contents: read
+    strategy:
+      # Sans ceci, l'échec d'une branche annule toutes les autres et on perd
+      # les fragments déjà produits.
+      fail-fast: false
+      matrix:
+        indice: ${{ fromJSON(needs.preparer.outputs.indices) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Générer le fragment
+        env:
+          INDICE: ${{ matrix.indice }}
+        run: ./scripts/generer-fragment.sh "$INDICE"
+
+      # Chaque branche de matrice tourne sur sa propre machine, sans disque
+      # partagé. L'artefact est le seul moyen de faire descendre un fichier
+      # vers le job suivant.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fragment-${{ matrix.indice }}
+          path: fragments/
+          retention-days: 1
+
+  rassembler:
+    needs: fragment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: journal
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fragment-*
+          merge-multiple: true
+          path: fragments
+
+      - name: Inventaire
+        run: |
+          {
+            echo "### Fragments rassemblés"
+            echo
+            echo '```'
+            ls -1 fragments/
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commiter et pousser
+        env:
+          NUMERO: ${{ github.run_number }}
+        run: './scripts/pousser.sh "fragments : run $NUMERO"'

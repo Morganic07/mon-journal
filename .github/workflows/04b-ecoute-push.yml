@@ -1,0 +1,37 @@
+name: 04b · Écoute des push
+
+# Ce workflow ne fait rien d'utile : il sert de témoin. Il se déclenche sur
+# les push venus d'un humain, et reste muet sur ceux émis par un workflow.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tracer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Signaler le push entendu
+        env:
+          AUTEUR: ${{ github.event.head_commit.author.name }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+          SHA: ${{ github.sha }}
+        run: |
+          # Les barres verticales d'un message de commit casseraient le
+          # tableau markdown, et seule la première ligne nous intéresse.
+          titre=$(printf '%s' "$MESSAGE" | head -n 1 | tr '|' '/')
+          {
+            echo "### Push entendu"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            printf '| commit | `%s` |\n' "${SHA:0:12}"
+            printf '| auteur | %s |\n' "$AUTEUR"
+            printf '| message | %s |\n' "$titre"
+            echo
+            echo "Si cet auteur est \`github-actions[bot]\`, c'est que le push"
+            echo "a été émis avec d'autres identifiants que le jeton par"
+            echo "défaut — sinon ce run n'existerait pas."
+          } >> "$GITHUB_STEP_SUMMARY"

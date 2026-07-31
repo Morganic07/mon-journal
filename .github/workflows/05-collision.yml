@@ -1,0 +1,55 @@
+name: 05 · Collision de push
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Aucun bloc concurrency, volontairement : c'est ce workflow qui doit
+# collisionner. Les trois branches clonent le même commit, écrivent, puis
+# poussent en même temps. Deux d'entre elles verront leur push refusé et
+# devront rebaser avant de réessayer.
+jobs:
+  ecrire:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        voie: [a, b, c]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Chaque voie écrit dans son propre fichier. Si les trois ajoutaient des
+      # lignes au même fichier, le rebase tomberait sur un conflit de contenu
+      # que le script ne peut pas résoudre seul.
+      - name: Écrire dans la voie
+        env:
+          VOIE: ${{ matrix.voie }}
+          NUMERO: ${{ github.run_number }}
+        run: |
+          mkdir -p entrees/collisions
+          fichier="entrees/collisions/voie-$VOIE.md"
+          if [ ! -f "$fichier" ]; then
+            printf '# Voie %s\n\n' "$VOIE" > "$fichier"
+          fi
+          printf -- '- run #%s — %s\n' \
+            "$NUMERO" "$(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> "$fichier"
+
+      - name: Pousser en concurrence des autres voies
+        env:
+          VOIE: ${{ matrix.voie }}
+          NUMERO: ${{ github.run_number }}
+        run: './scripts/pousser.sh "collision : voie $VOIE du run $NUMERO"'
+
+      - name: Où lire le résultat
+        run: |
+          {
+            echo "### Voie ${VOIE}"
+            echo
+            echo "Ouvrir le journal de l'étape de push. Si la voie a perdu la"
+            echo "course, on y lit *Push refusé*, puis le rebase, puis une"
+            echo "seconde tentative réussie."
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          VOIE: ${{ matrix.voie }}
