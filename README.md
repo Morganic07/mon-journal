@@ -30,18 +30,30 @@ Résultat : **un fichier qui s'allonge tout seul**.
 Les quatre passages ont lieu à **00:17, 06:17, 12:17 et 18:17 UTC**. Pour les
 déplacer, voir *Changer la fréquence des commits automatiques* plus bas.
 
-## Les cinq boutons
+## Les six boutons
 
-Le reste, ce sont des boutons dans l'onglet **Actions** : appuyer, puis
-regarder ce qui se passe.
+Tous se lancent à la main depuis l'onglet **Actions** — y compris le 01, qui
+tourne en plus tout seul. Appuyer, puis regarder ce qui se passe.
 
-| Bouton | Ce qu'il fabrique |
-|---|---|
-| **02 · Contexte** | Un rapport : « voici la machine sur laquelle je tourne, voici ce que je sais » |
-| **03 · Matrice** | Cinq fichiers, écrits par cinq ordinateurs différents en même temps |
-| **04 · Domino** | Un commit, pour montrer qu'un robot ne réveille pas un autre robot |
-| **04b** | Un témoin, qui ne s'allume que pour les commits venus d'un humain |
-| **05 · Collision** | Trois ordinateurs qui rangent leur copie **au même instant**, et se bousculent |
+| Bouton | Ce qu'il fabrique | Où le résultat atterrit |
+|---|---|---|
+| **01 · Battement** | Une ligne horodatée | `entrees/battements.md` |
+| **02 · Contexte** | Un rapport sur la machine qui exécute | `entrees/contexte.md` |
+| **03 · Matrice** | N fichiers, écrits par N ordinateurs en parallèle | `fragments/fragment-1.md` … `fragment-N.md` |
+| **04 · Domino** | Un commit, pour montrer qu'un robot n'en réveille pas un autre | `entrees/domino.md` |
+| **04b · Écoute des push** | Un témoin, qui ne s'allume que pour un commit humain | **rien dans le dépôt** |
+| **05 · Collision** | Trois ordinateurs qui rangent au même instant, et se bousculent | `entrees/collisions/voie-a.md`, `voie-b.md`, `voie-c.md` |
+
+Trois précisions sur cette colonne de droite :
+
+- **Les fichiers n'apparaissent sur le poste qu'après un `git pull`.** Ils sont
+  écrits par une machine distante, qui les range dans le dépôt ; rien n'arrive
+  localement tout seul.
+- **`04b` est le seul à ne rien produire.** Sa sortie est le *résumé* affiché
+  sur la page de son exécution, dans l'onglet Actions. Les cinq autres en
+  écrivent un aussi, en complément de leurs fichiers.
+- **Un fichier n'existe qu'une fois son bouton pressé.** `entrees/domino.md`
+  reste absent tant que `04` n'a pas tourné au moins une fois.
 
 ## À quoi ça sert ?
 
