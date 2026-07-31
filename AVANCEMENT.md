@@ -20,9 +20,11 @@
       *Vérifié : commit `2bc37c5`. La liste blanche a écarté 22 clés, dont
       `token` et `secret_source` — cette dernière serait passée avec l'ancien
       filtrage par liste noire.*
-- [ ] **2.3** `03 · Matrice` génère N fragments et les commite en un passage.
-      *Critère : lancé avec `combien = 5`, produit `fragments/fragment-1.md` à
-      `fragment-5.md` en un seul commit.*
+- [x] **2.3** `03 · Matrice` génère N fragments et les commite en un passage.
+      *Vérifié après deux corrections : les 5 fichiers sont réécrits dans le
+      commit `fragments : run 4`, par 5 runners distincts (`…192` à `…196`).
+      Le premier run semblait correct mais ne l'était pas — voir les deux
+      pièges consignés dans le README.*
 - [x] **2.4** Le non-déclenchement est démontré.
       *Vérifié sans avoir eu besoin de lancer `04` : le push humain a
       déclenché `04b`, le commit `a1f8c08` poussé par le workflow 01 ne l'a
