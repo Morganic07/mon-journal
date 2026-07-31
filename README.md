@@ -54,10 +54,16 @@ Ce que ça apprend :
 - **Un workflow planifié tourne même quand rien n'a changé.** Sans le
   `git diff --cached --quiet` de `scripts/pousser.sh`, `git commit` échouerait
   et ferait passer le run en rouge sans raison.
-- **Le cron n'est pas une horloge.** Des retards de dix à quarante minutes sont
-  normaux, et des exécutions sont purement sautées en période de charge. La
-  minute `:17` est choisie pour éviter l'embouteillage des crons calés sur
-  l'heure ronde.
+- **Le cron n'est pas une horloge, et l'écart est bien plus large qu'annoncé.**
+  Mesuré ici : le workflow a été réglé sur `*/5 * * * *` pendant 3 h 20, soit
+  une quarantaine de créneaux. Il s'est déclenché **deux fois**, à 20:24 et
+  21:38 — deux heures qui ne tombent sur aucun créneau demandé. Les vingt
+  premières minutes n'ont rien produit du tout. Un `schedule` exprime une
+  intention que GitHub honore quand il peut : les exécutions sont sautées, pas
+  empilées, et la priorité est basse sur un dépôt public gratuit. Ne jamais
+  bâtir dessus quoi que ce soit de sensible au temps. La minute `:17` du
+  réglage courant évite au moins l'embouteillage des crons calés sur l'heure
+  ronde.
 
 ### 02 · Contexte — voir ce que le runner connaît
 

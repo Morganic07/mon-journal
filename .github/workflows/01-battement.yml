@@ -10,11 +10,11 @@ on:
     # Quatre exécutions par jour, gratuites tant que le dépôt est public. Le
     # jour où il passe en privé, chacune sera facturée une minute pleine —
     # environ 120 par mois. Espacer alors à "17 3 * * *" pour tomber à 30.
-    # RÉGLAGE TEMPORAIRE — toutes les 5 minutes, le minimum accepté par
-    # GitHub, le temps d'observer un déclenchement planifié. À remettre sur
-    # "17 */6 * * *" aussitôt après : à cette cadence, le dépôt reçoit 288
-    # commits par jour.
-    - cron: "*/5 * * * *"
+    # Mesuré sur ce dépôt : réglé à "*/5 * * * *" pendant 3 h 20, il n'a pas
+    # produit les 40 exécutions attendues mais 2, à 20:24 et 21:38 — des
+    # heures qui ne tombent sur aucun créneau demandé. Un cron GitHub est une
+    # intention, pas une horloge.
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 # Le jeton fourni au workflow est en lecture seule par défaut. Sans cette

@@ -38,9 +38,11 @@
 
 ## Epic 3 — Vie du dépôt
 
-- [ ] **3.1** Le cron se déclenche seul.
-      *Critère : un run de `01` avec `schedule` comme déclencheur apparaît dans
-      l'historique sans intervention.*
+- [x] **3.1** Le cron se déclenche seul.
+      *Vérifié : runs #2 et #3, déclencheur `schedule`, commits `d482bde` et
+      `bccc2e2`. Mesure au passage — réglé sur `*/5` pendant 3 h 20, il a
+      produit 2 exécutions au lieu de 40, à des heures ne correspondant à
+      aucun créneau. Consigné dans le README.*
 - [ ] **3.2** Bascule en privé, le jour venu.
       *Critère : le cron espacé selon le commentaire du workflow 01, et la
       consommation relevée après une semaine, comparée aux ~120 min/mois
