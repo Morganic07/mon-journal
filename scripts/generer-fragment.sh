@@ -41,14 +41,19 @@ cat > "fragments/fragment-${indice}.md" <<EOF
 | allumée depuis | $(awk '{printf "%d s", $1}' /proc/uptime 2>/dev/null || echo '?') |
 | run | ${GITHUB_RUN_NUMBER:-hors Actions} |
 
-Comparer ce tableau avec celui des autres fragments du même run. Le nom d'hôte
-est commun à toutes les machines de GitHub et ne prouve rien ; l'identifiant
-machine et le runner alloué, eux, diffèrent d'un fragment à l'autre — cinq
-machines distinctes, sans aucun disque partagé. C'est l'artefact qui les a
-toutes fait redescendre vers le job de rassemblement.
+Comparer ce tableau avec celui des autres fragments du même run.
 
-L'uptime de quelques secondes dit le reste : la machine venait de naître, et
-elle a été détruite juste après avoir écrit ce fichier.
+Deux champs ne prouvent rien, et c'est la leçon : le nom d'hôte est commun à
+toute la flotte, et l'identifiant machine est identique partout parce qu'il est
+gravé dans l'image disque dont chaque machine est clonée. Deux identifiants
+qu'on croirait uniques, et qui ne le sont pas.
+
+Ce qui distingue réellement : le runner alloué, dont le numéro change à chaque
+job, et l'uptime — cinq durées différentes relevées à la même seconde ne
+peuvent pas sortir d'une seule machine. Chacune venait de naître et a été
+détruite juste après avoir écrit ce fichier, sans jamais partager de disque
+avec les autres. C'est l'artefact qui les a toutes fait redescendre vers le
+job de rassemblement.
 EOF
 
 echo "fragments/fragment-${indice}.md écrit."

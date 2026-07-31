@@ -98,9 +98,13 @@ Ce que ça apprend :
   par les autres. Un seul fragment sur cinq ressortait à jour. Le premier run
   n'a rien montré — le dossier n'existait pas encore dans le dépôt. Téléverser
   le fichier, pas son dossier.
-- **Le nom d'hôte ne distingue pas les runners.** Les machines d'un même run le
-  partagent. Ce qui diffère réellement, et que les fragments relèvent : le
-  runner alloué, l'identifiant machine, et l'uptime.
+- **Ni le nom d'hôte ni l'identifiant machine ne distinguent les runners.**
+  Mesuré sur cinq machines simultanées : `hostname` est commun à toute la
+  flotte, et `/etc/machine-id` est identique partout parce qu'il est gravé dans
+  l'image disque dont les VM sont clonées. Deux identifiants qu'on croirait
+  uniques. Ce qui varie vraiment : `RUNNER_NAME`, dont le numéro change à
+  chaque job, et l'uptime — cinq durées différentes relevées à la même seconde
+  ne peuvent pas sortir d'une seule machine.
 - **Les permissions se déclarent au plus près.** Le workflow part sur
   `permissions: {}`, le job de génération prend `contents: read`, seul le job
   de rassemblement obtient `contents: write`.
