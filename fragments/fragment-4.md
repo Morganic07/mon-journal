@@ -3,10 +3,18 @@
 | | |
 |---|---|
 | indice dans la matrice | 4 |
-| écrit le | 2026-07-31 18:46:00 UTC |
-| machine | runnervmvrwv9 |
-| run | 1 |
+| écrit le | 2026-07-31 18:50:35 UTC |
+| runner alloué | GitHub Actions 1000000188 |
+| nom d'hôte | runnervmvrwv9 |
+| identifiant machine | 0e4bba8396ef |
+| allumée depuis | 30 s |
+| run | 3 |
 
-Ce fichier a été écrit sur une machine qui n'existe plus. Les autres fragments
-du même run ont été écrits sur d'autres machines, sans aucun disque partagé :
-c'est l'artefact qui les a tous fait redescendre vers le job de rassemblement.
+Comparer ce tableau avec celui des autres fragments du même run. Le nom d'hôte
+est commun à toutes les machines de GitHub et ne prouve rien ; l'identifiant
+machine et le runner alloué, eux, diffèrent d'un fragment à l'autre — cinq
+machines distinctes, sans aucun disque partagé. C'est l'artefact qui les a
+toutes fait redescendre vers le job de rassemblement.
+
+L'uptime de quelques secondes dit le reste : la machine venait de naître, et
+elle a été détruite juste après avoir écrit ce fichier.
