@@ -1,229 +1,234 @@
 # mon-journal
 
-Un dépôt qui s'écrit tout seul, pour regarder GitHub Actions fonctionner de
-l'intérieur.
+Un dépôt qui s'écrit tout seul, pour voir comment GitHub Actions fonctionne.
 
-Le contenu produit n'a aucun intérêt : des horodatages, des fragments
-numérotés. Ce qu'on observe, c'est la plomberie — qui déclenche quoi, avec
-quels droits, sur quelle machine, et ce qui se passe quand deux jobs se
-marchent dessus.
+## En une image
 
-Six workflows, six mécaniques isolées. Chacun se lance à la main depuis
-l'onglet **Actions**, sauf le premier qui tourne aussi tout seul.
+GitHub prête des ordinateurs. Gratuitement, à la demande, pour quelques
+secondes.
 
----
+Ce dépôt contient des **fiches de consigne**. Chaque fiche dit : « quand tel
+événement arrive, prends un ordinateur, fais ceci, puis range ».
 
-## Mise en route
+C'est tout. Le reste n'est que du détail.
 
-Les workflows doivent vivre sur la branche par défaut : un `on: schedule` posé
-sur une autre branche ne se déclenche jamais.
+## Ce qui se passe pendant que tu dors
+
+Quatre fois par jour, sans que personne ne touche à rien :
+
+1. Un ordinateur s'allume quelque part dans un centre de données.
+2. Il télécharge ce dossier.
+3. Il ajoute **une ligne** dans `entrees/battements.md` : la date et l'heure.
+4. Il renvoie le dossier à GitHub.
+5. Il est détruit. Définitivement.
+
+Six heures plus tard, un autre ordinateur — pas le même, il n'existait pas
+encore — recommence.
+
+Résultat : **un fichier qui s'allonge tout seul**.
+
+## Les cinq boutons
+
+Le reste, ce sont des boutons dans l'onglet **Actions**. Tu appuies, tu
+regardes ce qui se passe.
+
+| Bouton | Ce qu'il fabrique |
+|---|---|
+| **02 · Contexte** | Un rapport : « voici la machine sur laquelle je tourne, voici ce que je sais » |
+| **03 · Matrice** | Cinq fichiers, écrits par cinq ordinateurs différents en même temps |
+| **04 · Domino** | Un commit, pour montrer qu'un robot ne réveille pas un autre robot |
+| **04b** | Un témoin, qui ne s'allume que pour les commits venus d'un humain |
+| **05 · Collision** | Trois ordinateurs qui rangent leur copie **au même instant**, et se bousculent |
+
+## À quoi ça sert ?
+
+À rien. C'est volontaire.
+
+Les fichiers produits ne contiennent que des horodatages. Aucune valeur, aucun
+usage.
+
+C'est une **maquette transparente**. Comme un moteur en plexiglas : il ne fait
+avancer aucune voiture, mais on voit les pistons bouger. Ici on voit qui
+déclenche quoi, avec quels droits, sur quelle machine, et ce qui casse quand
+deux tâches se marchent dessus.
+
+## Comment regarder
 
 ```bash
-gh repo create mon-journal --public --source=. --remote=origin --push
+git pull && cat entrees/battements.md     # le fichier qui grandit tout seul
+gh run list                               # ce qui s'est exécuté récemment
+gh repo view --web                        # l'onglet Actions dans le navigateur
 ```
 
-Puis, une seule fois, dans **Settings → Actions → General** :
+Pour appuyer sur un bouton :
 
-- **Workflow permissions** : le bloc `permissions:` de chaque workflow demande
-  explicitement ce dont il a besoin, donc le réglage par défaut peut rester sur
-  *Read repository contents permission*. Si un push échoue malgré tout en
-  **403**, c'est ici qu'il faut regarder — sur un dépôt appartenant à une
-  organisation, un réglage supérieur peut plafonner ce qu'un workflow a le
-  droit de demander.
+```bash
+gh workflow run "02 · Contexte"
+```
 
-Lancer ensuite **01 · Battement** à la main pour vérifier que la chaîne
-complète passe.
+**Pour tout arrêter :** onglet Actions, choisir un workflow à gauche, menu `...`
+→ *Disable workflow*. Le dépôt reste consultable.
 
 ---
 
-## Les six leçons
+# Le détail, si tu veux creuser
 
-### 01 · Battement — écrire dans son propre dépôt
+Le reste de ce fichier suppose que tu veux comprendre la mécanique. Rien
+au-dessus de cette ligne n'en dépend.
 
-Ajoute une ligne horodatée à `entrees/battements.md`, toutes les six heures et
-sur demande.
+## La chose la plus contre-intuitive
 
-À observer : le commit apparaît sous l'identité `github-actions[bot]`, pas sous
-la tienne.
+**L'ordinateur qui a écrit ta ligne d'hier n'existe plus.**
 
-Ce que ça apprend :
+Il n'y a pas de serveur quelque part avec ton projet dessus. Chaque exécution
+est une machine neuve, née pour vingt secondes et détruite aussitôt. Rien ne
+survit d'une exécution à l'autre — sauf ce qui a été rangé dans le dépôt.
 
-- **Le jeton d'un workflow est en lecture seule.** Sans `permissions: contents:
-  write`, le push part en 403. C'est l'erreur la plus fréquente des workflows
-  qui écrivent.
-- **Un workflow planifié tourne même quand rien n'a changé.** Sans le
+C'est pour ça que chaque fiche se termine par un `git push`. Sans lui, le
+travail disparaît avec la machine.
+
+## Les six mécaniques
+
+**01 · Battement — écrire dans son propre dépôt.** Une ligne horodatée toutes
+les six heures.
+
+- Le jeton donné à un workflow est **en lecture seule**. Sans
+  `permissions: contents: write`, le push part en 403. C'est l'erreur la plus
+  fréquente.
+- Le commit apparaît sous `github-actions[bot]`, pas sous ton nom.
+- Un workflow planifié tourne même quand rien n'a changé. Sans le
   `git diff --cached --quiet` de `scripts/pousser.sh`, `git commit` échouerait
   et ferait passer le run en rouge sans raison.
-- **Le cron n'est pas une horloge, et l'écart est bien plus large qu'annoncé.**
-  Mesuré ici : le workflow a été réglé sur `*/5 * * * *` pendant 3 h 20, soit
-  une quarantaine de créneaux. Il s'est déclenché **deux fois**, à 20:24 et
-  21:38 — deux heures qui ne tombent sur aucun créneau demandé. Les vingt
-  premières minutes n'ont rien produit du tout. Un `schedule` exprime une
-  intention que GitHub honore quand il peut : les exécutions sont sautées, pas
-  empilées, et la priorité est basse sur un dépôt public gratuit. Ne jamais
-  bâtir dessus quoi que ce soit de sensible au temps. La minute `:17` du
-  réglage courant évite au moins l'embouteillage des crons calés sur l'heure
-  ronde.
 
-### 02 · Contexte — voir ce que le runner connaît
+**02 · Contexte — voir ce que la machine sait d'elle-même.**
 
-Écrit `entrees/contexte.md` : les contextes `github` et `runner` sérialisés, et
-les caractéristiques de la machine.
+- Le contexte `github` **contient le jeton d'accès**. Masqué dans les journaux,
+  pas dans un fichier commité. Le script filtre par **liste blanche** : seules
+  des clés nommées une à une sortent. Une liste noire (`del(.token)`) laisserait
+  passer tout ce qu'on n'a pas prévu — sur ce dépôt, 22 clés ont été écartées,
+  dont `secret_source` qu'on n'aurait pas pensé à nommer.
+- Certaines variables sont des **fichiers, pas des valeurs** : `GITHUB_ENV`,
+  `GITHUB_OUTPUT`, `GITHUB_STEP_SUMMARY`. On y écrit une ligne pour parler à la
+  suite du workflow.
+- `${{ }}` est remplacé **avant** que bash ne voie la ligne. D'où le passage
+  systématique par un bloc `env:`.
 
-Ce que ça apprend :
+**03 · Matrice — plusieurs machines, un seul commit.**
 
-- **Le contexte `github` contient le jeton d'accès.** GitHub le masque dans les
-  journaux, mais rien ne le masquerait dans un fichier commité. Le script le
-  retire avec `jq 'del(.token, .event)'` *avant* la première écriture disque.
-  Un `toJSON(github)` versionné brut est une fuite d'identifiants.
-- **Certaines variables sont des fichiers, pas des valeurs.** `GITHUB_ENV`,
-  `GITHUB_OUTPUT`, `GITHUB_STEP_SUMMARY`, `GITHUB_PATH` : on y écrit une ligne
-  pour parler à la suite du workflow.
-- **`${{ }}` est substitué avant bash.** D'où le passage systématique par un
-  bloc `env:` plutôt qu'une interpolation directe dans le script.
+- La taille d'une matrice **ne peut pas dépendre directement d'une entrée** :
+  elle est figée à la lecture du fichier. Le détour : un premier job calcule la
+  liste et la publie en JSON, le second la lit avec `fromJSON`.
+- Les jobs **ne partagent aucun disque**. L'artefact est le seul canal pour
+  faire descendre un fichier vers le job suivant.
+- Les permissions se déclarent **au plus près** : le workflow part sur
+  `permissions: {}`, chaque job élève ce dont il a besoin.
+- `fail-fast: false` empêche l'échec d'une branche d'annuler les autres.
 
-### 03 · Matrice et artefacts — plusieurs machines, un seul commit
+**04 · Domino — le push qui ne réveille personne.**
 
-Demande un nombre de fragments (1 à 8), les génère en parallèle, puis les
-rassemble et les commite en un seul passage.
+- Un push émis avec le jeton par défaut **ne déclenche aucun workflow**.
+  Garde-fou anti-boucle infinie, non désactivable.
+- Pour le lever : jeton personnel, clé de déploiement, ou GitHub App. La boucle
+  infinie redevient alors possible, et c'est à toi de la bloquer.
+- Vérification : pousse un commit depuis ton poste, `04b` se déclenche. Lance
+  `04`, il ne se déclenche pas.
 
-Ce que ça apprend :
+**05 · Collision — trois jobs qui poussent en même temps.**
 
-- **La taille d'une matrice ne peut pas dépendre directement d'une entrée.**
-  Elle est figée à l'analyse du fichier. Le détour : un premier job calcule la
-  liste et la publie en JSON dans `GITHUB_OUTPUT`, le second la lit avec
-  `fromJSON`.
-- **Les jobs ne partagent aucun disque.** Chaque branche de matrice tourne sur
-  une machine neuve. L'artefact est le seul canal pour faire descendre un
-  fichier vers le job suivant.
-- **Un artefact téléverse ce qu'on lui donne, y compris ce qu'on n'a pas
-  produit.** Ce workflow a d'abord été écrit avec `path: fragments/`. Comme
-  chaque job fait un `checkout`, son dossier `fragments/` contenait déjà les
-  fichiers des runs précédents : les cinq artefacts embarquaient les cinq
-  fichiers, et le `merge-multiple` du job de rassemblement les écrasait les uns
-  par les autres. Un seul fragment sur cinq ressortait à jour. Le premier run
-  n'a rien montré — le dossier n'existait pas encore dans le dépôt. Téléverser
-  le fichier, pas son dossier.
-- **Ni le nom d'hôte ni l'identifiant machine ne distinguent les runners.**
-  Mesuré sur cinq machines simultanées : `hostname` est commun à toute la
-  flotte, et `/etc/machine-id` est identique partout parce qu'il est gravé dans
-  l'image disque dont les VM sont clonées. Deux identifiants qu'on croirait
-  uniques. Ce qui varie vraiment : `RUNNER_NAME`, dont le numéro change à
-  chaque job, et l'uptime — cinq durées différentes relevées à la même seconde
-  ne peuvent pas sortir d'une seule machine.
-- **Les permissions se déclarent au plus près.** Le workflow part sur
-  `permissions: {}`, le job de génération prend `contents: read`, seul le job
-  de rassemblement obtient `contents: write`.
-- **`fail-fast: false`** empêche l'échec d'une branche d'annuler les autres.
-
-### 04 · Domino — le push qui ne réveille personne
-
-`04` pousse un commit. `04b` écoute les push. Lancer `04`, puis regarder
-l'onglet Actions : **aucun run de `04b` n'apparaît**.
-
-Ce que ça apprend :
-
-- **Un push émis avec le jeton par défaut ne déclenche aucun workflow.** Le
-  garde-fou est là pour empêcher les boucles infinies, il n'est pas
-  désactivable, et il surprend systématiquement quand on veut chaîner deux
-  automatisations.
-- Pour le lever, il faut d'autres identifiants — jeton personnel à portée
-  restreinte, clé de déploiement, ou GitHub App. Avec eux, la boucle infinie
-  redevient possible : c'est alors à toi de poser un garde-fou, par exemple un
-  `if: github.actor != 'mon-bot'`.
-- La voie sobre, quand on veut juste enchaîner : appeler explicitement le
-  workflow suivant, avec `workflow_call` ou un `workflow_dispatch` déclenché
-  par l'API.
-
-Pour vérifier que `04b` n'est pas simplement cassé, pousser un commit à la main
-depuis ton poste : là, il se déclenche.
-
-### 05 · Collision — trois jobs qui poussent en même temps
-
-Trois branches de matrice clonent le même commit, écrivent chacune dans son
-fichier, et poussent simultanément.
-
-Ce que ça apprend :
-
-- **Le premier arrivé gagne, les autres sont refusés.** Ce n'est pas une
-  erreur : la branche distante a bougé sous leurs pieds. La boucle de
+- Le premier arrivé gagne, les autres sont refusés. La boucle de
   `scripts/pousser.sh` rebase et réessaie, avec une attente croissante.
-- **Le rebase ne sauve que si les fichiers sont disjoints.** Si les trois voies
-  ajoutaient des lignes au même fichier, le rebase tomberait sur un conflit que
-  le script ne peut pas trancher — il s'arrête alors avec un message qui le
-  dit.
-- **L'alternative est de ne pas paralléliser.** Un bloc `concurrency` sérialise
-  les runs, au prix de l'attente. Les workflows 01 à 04 utilisent tous le même
-  groupe `journal` pour cette raison ; `05` s'en passe exprès.
-- La collision n'est pas garantie à chaque exécution : si une voie termine
-  avant que les autres n'aient poussé, tout passe du premier coup. Relancer.
+- Observé sur ce dépôt : voie **b** passée du premier coup, voie **a** refusée
+  une fois, voie **c** refusée **deux** fois — pendant qu'elle rebasait, une
+  autre voie avait encore bougé la cible.
+- Le rebase ne sauve que si les fichiers sont **disjoints**. Sur le même
+  fichier, c'est un conflit que le script ne peut pas trancher : il s'arrête
+  avec un message qui le dit.
+- L'alternative est de ne pas paralléliser : un bloc `concurrency` sérialise
+  les runs. Les workflows 01 à 04 partagent le groupe `journal` pour ça ; `05`
+  s'en passe exprès.
 
----
+## Ce qui a cassé en route
+
+Trois enseignements viennent de bugs, pas du code prévu. Aucun n'était visible
+au premier essai.
+
+**L'artefact embarquait tout son dossier.** Écrit d'abord avec
+`path: fragments/`. Comme chaque job fait un `checkout`, son dossier contenait
+déjà les fichiers des runs précédents : les cinq artefacts embarquaient les
+cinq fichiers, et la fusion les écrasait les uns par les autres. **Un seul
+fragment sur cinq ressortait à jour.** Invisible au premier run, où le dossier
+n'existait pas encore. Correction : téléverser le fichier, pas son dossier.
+
+**Le nom d'hôte et le `machine-id` ne distinguent pas les runners.** Mesuré sur
+cinq machines simultanées : `hostname` est commun à toute la flotte, et
+`/etc/machine-id` est identique partout — il est gravé dans l'image disque dont
+les VM sont clonées. Deux identifiants qu'on croirait uniques. Ce qui varie
+vraiment : `RUNNER_NAME`, et l'uptime — cinq durées différentes relevées à la
+même seconde ne peuvent pas sortir d'une seule machine.
+
+**Le cron honore environ 5 % de ce qu'on lui demande.** Réglé sur
+`*/5 * * * *` pendant 3 h 20, soit une quarantaine de créneaux, il s'est
+déclenché **deux fois** — à 20:24 et 21:38, deux heures qui ne tombent sur
+aucun créneau demandé. Les vingt premières minutes n'ont rien produit. Les
+exécutions manquées sont **sautées, pas empilées**. Ne jamais bâtir sur un
+`schedule` quoi que ce soit de sensible au temps.
 
 ## Ce qu'il faut savoir avant de le laisser tourner
 
-**Tant que le dépôt est public, les minutes Actions sont gratuites et
-illimitées** sur les runners standard. Rien à surveiller.
+**Tant que le dépôt est public, les minutes sont gratuites et illimitées** sur
+les runners standard. Rien à surveiller.
 
 **Les workflows planifiés finissent par être désactivés.** Après une longue
-période sans activité humaine dans le dépôt, GitHub coupe les crons et envoie
-un avertissement par courriel. Un clic sur *Enable workflow* les relance.
+période sans activité humaine, GitHub coupe les crons et prévient par courriel.
+Un clic sur *Enable workflow* les relance.
 
-**L'historique va gonfler.** Quatre commits par jour, indéfiniment. C'est sans
+**L'historique va gonfler.** Quatre commits par jour, indéfiniment. Sans
 conséquence à cette échelle, mais ce n'est pas un dépôt qu'on garde propre.
-
-**Pour tout arrêter :** onglet **Actions**, sélectionner un workflow dans la
-colonne de gauche, menu `...` → *Disable workflow*. Le dépôt reste consultable.
-
----
 
 ## Le jour où il passera en privé
 
-Par ordre d'importance :
+**1. La facturation démarre.** Quota mensuel — 2 000 minutes sur un compte
+gratuit — et **chaque job est arrondi à la minute supérieure, séparément**. Un
+job de quinze secondes coûte une minute pleine ; une matrice de huit branches
+coûte huit minutes. Seul le 01 tourne seul : environ 120 minutes par mois. Le
+commentaire au-dessus de son `cron:` rappelle comment l'espacer. La limite de
+dépense d'un compte gratuit est à 0 € par défaut : quota épuisé, les workflows
+cessent de démarrer, aucune facture n'arrive.
 
-**1. La facturation démarre.** Les minutes Actions sont décomptées d'un quota
-mensuel — 2 000 sur un compte gratuit — et **chaque job est arrondi à la minute
-supérieure, séparément**. Un job de quinze secondes coûte une minute pleine, et
-une matrice de huit branches coûte huit minutes pour le même travail. Le seul
-workflow qui tourne seul est le 01 : quatre fois par jour, soit environ
-120 minutes par mois. Le commentaire au-dessus de son `cron:` rappelle comment
-l'espacer. La limite de dépense d'un compte gratuit est à 0 € par défaut : le
-quota épuisé, les workflows cessent de démarrer, aucune facture n'arrive.
-
-**2. Passer en privé n'efface pas ce qui a été public.** Les forks déjà faits
-subsistent, les clones aussi, et les archives tierces ne se rétractent pas.
-Tout ce qui entre dans le dépôt pendant la phase publique doit être tenu pour
-publié définitivement — y compris l'adresse de courriel des auteurs de commit,
-que `git log` expose et qu'aucun changement de visibilité ne retire.
+**2. Passer en privé n'efface pas ce qui a été public.** Les forks et les
+clones déjà faits subsistent. Tout ce qui est entré dans le dépôt pendant la
+phase publique doit être tenu pour publié définitivement — y compris l'adresse
+de courriel des auteurs de commit, que `git log` expose. C'est pourquoi les
+commits d'ici utilisent l'adresse `noreply` de GitHub.
 
 **3. Le code n'a rien à changer.** Les six workflows se comportent
-identiquement dans les deux visibilités. Le filtrage du contexte du workflow 02
-est déjà en liste blanche : il ne laisse sortir que des clés nommées une à une,
-donc il reste correct qu'il y ait ou non des lecteurs anonymes.
+identiquement dans les deux visibilités.
 
-Un point de vigilance pour la suite, tant que le dépôt est public : aucun
-workflow ne se déclenche sur `pull_request`, et c'est ce qui empêche un fork
-d'exécuter quoi que ce soit ici. Si ce déclencheur est ajouté un jour, relire
-la question de près — `pull_request_target` en particulier donne à du code
-venu d'un fork l'accès aux secrets du dépôt.
+Un point de vigilance tant que le dépôt est public : **aucun workflow ne se
+déclenche sur `pull_request`**, et c'est ce qui empêche un fork d'exécuter quoi
+que ce soit ici. Si ce déclencheur est ajouté un jour, relire la question de
+près — `pull_request_target` donne à du code venu d'un fork l'accès aux secrets.
 
----
-
-## Organisation des fichiers
+## Les fichiers
 
 ```
-.github/workflows/     les six workflows, un par mécanique
+.github/workflows/     les six fiches de consigne, une par mécanique
 scripts/               la logique, sortie des blocs `run:`
 entrees/               produit par les workflows — ne pas éditer à la main
 fragments/             produit par le workflow 03
 ```
 
 La logique vit dans `scripts/` plutôt que dans des blocs `run: |` pour deux
-raisons : un heredoc à l'intérieur d'un YAML indenté conserve son indentation
-et décale tout ce qu'il écrit, et un script se teste depuis son poste sans
-consommer de run.
+raisons : un heredoc dans un YAML indenté conserve son indentation et décale
+tout ce qu'il écrit, et un script se teste depuis son poste sans consommer de
+run.
 
 ```bash
-bash -n scripts/*.sh                    # vérifier la syntaxe
+bash -n scripts/*.sh
 NUMERO=0 CTX_GITHUB='{"a":1}' CTX_RUNNER='{}' ./scripts/ecrire-contexte.sh
 ```
+
+Un piège de syntaxe à connaître : un `: ` dans une valeur YAML non quotée est
+lu comme un séparateur clé/valeur, et le fichier ne se charge plus. GitHub
+n'affiche alors aucune erreur — le workflow **disparaît simplement** de la
+liste. D'où les quotes simples autour des appels à `pousser.sh`.
