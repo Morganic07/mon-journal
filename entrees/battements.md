@@ -226,3 +226,4 @@ Une ligne par exécution du workflow 01.
 - 2026-08-20 08:57 UTC — déclencheur `schedule` — run #223
 - 2026-08-20 10:49 UTC — déclencheur `schedule` — run #224
 - 2026-08-20 13:12 UTC — déclencheur `schedule` — run #225
+- 2026-08-20 14:56 UTC — déclencheur `schedule` — run #226
