@@ -309,3 +309,4 @@ Une ligne par exécution du workflow 01.
 - 2026-08-29 02:49 UTC — déclencheur `schedule` — run #306
 - 2026-08-29 11:07 UTC — déclencheur `schedule` — run #307
 - 2026-08-29 16:44 UTC — déclencheur `schedule` — run #308
+- 2026-08-29 20:57 UTC — déclencheur `schedule` — run #309
